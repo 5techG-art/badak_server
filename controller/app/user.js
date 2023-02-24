@@ -415,63 +415,75 @@ const confirmVehicleWithUserByChassisNumberAndUserId = (req, res, next) => {
 
 // upload user profile image
 const uploadUserImage = (req, res, next) => {
-    // console.log(req.file);
-    if (!req.file) {
-        console.log('No file uploaded');
-        return res.status(400).send('No file uploaded');
+    try {
+        // console.log(req.file);
+        if (!req.file) {
+            console.log('No file uploaded');
+            return res.status(400).send('No file uploaded');
+        }
+        // console.log(req.file.filename);
+        const imgUrl = process.env.IMAGEURL + req.file.filename;
+        db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
+            if (err) {
+                return next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                db.query(`UPDATE userrequest SET image = '${imgUrl}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
+                    if (err) {
+                        return next(createError(404, err.message))
+                    }
+                    if (result1.affectedRows > 0) {
+                        res.status(200).json({ success: true, message: "Profile picture has been successfully uploaded" })
+                    } else {
+                        return next(createError(404, "Profile picture has not uploaded"))
+                    }
+                })
+            } else {
+                return next(createError(404, "User not created"))
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        next(createError(500, "Internal server error"))
     }
-    // console.log(req.file.filename);
-    const imgUrl = process.env.IMAGEURL + req.file.filename;
-    db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
-        if (err) {
-            return next(createError(404, err.message))
-        }
-        if (result.length > 0) {
-            db.query(`UPDATE userrequest SET image = '${imgUrl}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
-                if (err) {
-                    return next(createError(404, err.message))
-                }
-                if (result1.affectedRows > 0) {
-                    res.status(200).json({ success: true, message: "Profile picture has been successfully uploaded" })
-                } else {
-                    return next(createError(404, "Profile picture has not uploaded"))
-                }
-            })
-        } else {
-            return next(createError(404, "User not created"))
-        }
-    })
 }
+
+
 
 
 // Upload user kyc images
 const uploadUserKycDocuments = (req, res, next) => {
-    // console.log(req.file);
-    if (!req.file) {
-        console.log('No file uploaded');
-        return res.status(400).send('No file uploaded');
+    try {
+        // console.log(req.file);
+        if (!req.file) {
+            console.log('No file uploaded');
+            return res.status(400).send('No file uploaded');
+        }
+        // console.log(req.file.filename);
+        const imgUrl = process.env.IMAGEURL + req.file.filename;
+        db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
+            if (err) {
+                return next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                db.query(`UPDATE userrequest SET kyc_image = '${imgUrl}', kyc_type = '${req.body.type}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
+                    if (err) {
+                        return next(createError(404, err.message))
+                    }
+                    if (result1.affectedRows > 0) {
+                        res.status(200).json({ success: true, message: "Document has been successfully uploaded" })
+                    } else {
+                        return next(createError(404, "Document has not uploaded"))
+                    }
+                })
+            } else {
+                return next(createError(404, "User not created"))
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        next(createError(500, "Internal server error"))
     }
-    // console.log(req.file.filename);
-    const imgUrl = process.env.IMAGEURL + req.file.filename;
-    db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
-        if (err) {
-            return next(createError(404, err.message))
-        }
-        if (result.length > 0) {
-            db.query(`UPDATE userrequest SET kyc_image = '${imgUrl}', kyc_type = '${req.body.type}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
-                if (err) {
-                    return next(createError(404, err.message))
-                }
-                if (result1.affectedRows > 0) {
-                    res.status(200).json({ success: true, message: "Document has been successfully uploaded" })
-                } else {
-                    return next(createError(404, "Document has not uploaded"))
-                }
-            })
-        } else {
-            return next(createError(404, "User not created"))
-        }
-    })
 }
 
 
@@ -481,32 +493,37 @@ const uploadUserKycDocuments = (req, res, next) => {
 
 // Uplaod user dra cerificate
 const uploadUserDraDocuments = (req, res, next) => {
-    // console.log(req.file);
-    if (!req.file) {
-        // console.log('No file uploaded');
-        return res.status(400).send('No file uploaded');
+    try {
+        // console.log(req.file);
+        if (!req.file) {
+            // console.log('No file uploaded');
+            return res.status(400).send('No file uploaded');
+        }
+        // console.log(req.file.filename);
+        const imgUrl = process.env.IMAGEURL + req.file.filename;
+        db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
+            if (err) {
+                return next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                db.query(`UPDATE userrequest SET dra_image = '${imgUrl}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
+                    if (err) {
+                        return next(createError(404, err.message))
+                    }
+                    if (result1.affectedRows > 0) {
+                        res.status(200).json({ success: true, message: "Document has been successfully uploaded" })
+                    } else {
+                        return next(createError(404, "Document has not uploaded"))
+                    }
+                })
+            } else {
+                return next(createError(404, "User not created"))
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        next(createError(500, "Internal server error"))
     }
-    // console.log(req.file.filename);
-    const imgUrl = process.env.IMAGEURL + req.file.filename;
-    db.query(`SELECT request_id FROM userrequest WHERE id = '${req.params.userId}'`, async function (err, result) {
-        if (err) {
-            return next(createError(404, err.message))
-        }
-        if (result.length > 0) {
-            db.query(`UPDATE userrequest SET dra_image = '${imgUrl}' WHERE request_id = '${result[0].request_id}'`, async function (err, result1) {
-                if (err) {
-                    return next(createError(404, err.message))
-                }
-                if (result1.affectedRows > 0) {
-                    res.status(200).json({ success: true, message: "Document has been successfully uploaded" })
-                } else {
-                    return next(createError(404, "Document has not uploaded"))
-                }
-            })
-        } else {
-            return next(createError(404, "User not created"))
-        }
-    })
 }
 
 
@@ -514,31 +531,36 @@ const uploadUserDraDocuments = (req, res, next) => {
 
 // Uplaod user dra cerificate
 const uploadVehicleImageByUser = (req, res, next) => {
-    // console.log(req.file);
-    if (req.files.length < 1) {
-        // console.log('No file uploaded');
-        return res.status(400).send('No file uploaded');
+    try {
+        // console.log(req.file);
+        if (req.files.length < 1) {
+            // console.log('No file uploaded');
+            return res.status(400).send('No file uploaded');
+        }
+        // const img1 = 'http://localhost:4000/api/car_repo/image/' + req.files[0].filename;
+        // const img2 = 'http://localhost:4000/api/car_repo/image/' + req.files[1].filename;
+        // const img3 = 'http://localhost:4000/api/car_repo/image/' + req.files[2].filename;
+        // const img4 = 'http://localhost:4000/api/car_repo/image/' + req.files[3].filename;
+        // const img5 = 'http://localhost:4000/api/car_repo/image/' + req.files[4].filename;
+        const img1 = process.env.IMAGEURL + req.files[0].filename;
+        const img2 = process.env.IMAGEURL + req.files[1].filename;
+        const img3 = process.env.IMAGEURL + req.files[2].filename;
+        const img4 = process.env.IMAGEURL + req.files[3].filename;
+        const img5 = process.env.IMAGEURL + req.files[4].filename;
+        db.query(`INSERT INTO vehicleimage (first,second, third, forth, fifth, vehicle_id) VALUES ('${img1}','${img2}','${img3}','${img4}','${img5}','${342342}')`, async function (err, result1) {
+            if (err) {
+                return next(createError(404, err.message))
+            }
+            if (result1.affectedRows > 0) {
+                res.status(200).json({ success: true, message: "Record successfully confirmed" });
+            } else {
+                return next(createError(404, "Record not confirmed"))
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        next(500, "Internal server error")
     }
-    // const img1 = 'http://localhost:4000/api/car_repo/image/' + req.files[0].filename;
-    // const img2 = 'http://localhost:4000/api/car_repo/image/' + req.files[1].filename;
-    // const img3 = 'http://localhost:4000/api/car_repo/image/' + req.files[2].filename;
-    // const img4 = 'http://localhost:4000/api/car_repo/image/' + req.files[3].filename;
-    // const img5 = 'http://localhost:4000/api/car_repo/image/' + req.files[4].filename;
-    const img1 = process.env.IMAGEURL + req.files[0].filename;
-    const img2 = process.env.IMAGEURL + req.files[1].filename;
-    const img3 = process.env.IMAGEURL + req.files[2].filename;
-    const img4 = process.env.IMAGEURL + req.files[3].filename;
-    const img5 = process.env.IMAGEURL + req.files[4].filename;
-    db.query(`INSERT INTO vehicleimage (first,second, third, forth, fifth, vehicle_id) VALUES ('${img1}','${img2}','${img3}','${img4}','${img5}','${342342}')`, async function (err, result1) {
-        if (err) {
-            return next(createError(404, err.message))
-        }
-        if (result1.affectedRows > 0) {
-            res.status(200).json({ success: true, message: "Record successfully confirmed" });
-        } else {
-            return next(createError(404, "Record not confirmed"))
-        }
-    })
 }
 
 

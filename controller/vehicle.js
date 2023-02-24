@@ -225,7 +225,95 @@ const vehicleWithLimit = async (req, res, next) => {
                 return next((createError(404, err.message)))
             }
             if (result.length > 0) {
-                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle LIMIT 500`, async function (err, result1) {
+                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle WHERE is_confirm = 0 LIMIT 500`, async function (err, result1) {
+                    if (err) {
+                        return next((createError(404, err.message)))
+                    }
+                    if (result1.length > 0) {
+                        res.status(200).json({ success: true, data: result1 })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found" })
+                    }
+                })
+            } else {
+                next(createError(401, "You are not admin"))
+            }
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+
+
+
+const confirmVehicleWithLimit = async (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0) {
+                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle WHERE is_confirm = 1 LIMIT 500`, async function (err, result1) {
+                    if (err) {
+                        return next((createError(404, err.message)))
+                    }
+                    if (result1.length > 0) {
+                        res.status(200).json({ success: true, data: result1 })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found" })
+                    }
+                })
+            } else {
+                next(createError(401, "You are not admin"))
+            }
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+
+
+
+
+const confirmVehicleSearchWithChassisNumber = async (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0) {
+                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle WHERE is_confirm = 1 AND chassis_number LIKE '%${req.params.chassis_number}%'`, async function (err, result1) {
+                    if (err) {
+                        return next((createError(404, err.message)))
+                    }
+                    if (result1.length > 0) {
+                        res.status(200).json({ success: true, data: result1 })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found" })
+                    }
+                })
+            } else {
+                next(createError(401, "You are not admin"))
+            }
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+
+
+
+const confirmVehicleSearchWithRcNumber = async (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0) {
+                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle WHERE is_confirm = 1 AND rc_number LIKE '%${req.params.rc_number}%'`, async function (err, result1) {
                     if (err) {
                         return next((createError(404, err.message)))
                     }
@@ -368,4 +456,4 @@ const vehicleDetails = async (req, res, next) => {
 
 
 
-module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails }
+module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber }
