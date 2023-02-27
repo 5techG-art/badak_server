@@ -1,4 +1,4 @@
-const { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber } = require('../controller/vehicle');
+const { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage } = require('../controller/vehicle');
 const verifyToken = require('../middleware/tokenVerify');
 const express = require('express');
 const db = require('../config/database');
@@ -43,6 +43,7 @@ router.post("/delete/vehicle/rc-number/:rc_number", verifyToken, deleteVehicleBy
 router.post("/confirm/vehicle/list", verifyToken, confirmVehicleWithLimit);
 router.post("/confirm/vehicle/search/rc-number/:rc_number", verifyToken, confirmVehicleSearchWithRcNumber);
 router.post("/confirm/vehicle/search/chassis-number/:rc_number", verifyToken, confirmVehicleSearchWithChassisNumber);
+router.post("/confirm/vehicle/data/image/:vehicleId", verifyToken, confirmVehicleDetailsWithImage);
 // router.post("/upload/data", vehicleDataUpload);
 router.post("/upload/data", (req, res) => {
   // console.log(req);

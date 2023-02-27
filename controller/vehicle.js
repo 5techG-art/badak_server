@@ -456,4 +456,33 @@ const vehicleDetails = async (req, res, next) => {
 
 
 
-module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber }
+const confirmVehicleDetailsWithImage = async (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0) {
+                db.query(`SELECT * FROM vehicle INNER JOIN vehicleimage ON vehicle.vehicle_id = vehicleimage.vehicle_id WHERE vehicle.vehicle_id = '${req.params.vehicleId}'`, async function (err, result1) {
+                    if (err) {
+                        return next((createError(404, err.message)))
+                    }
+                    if (result1.length > 0) {
+                        const { id, finance_id, branch_code, ...data } = result1[0]
+                        res.status(200).json({ success: true, data: data })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found", data: result1 })
+                    }
+                })
+            } else {
+                next(createError(401, "You are not admin"))
+            }
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+
+
+module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage }

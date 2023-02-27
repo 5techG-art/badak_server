@@ -1,7 +1,7 @@
 
 const express = require('express');
 const verifyToken = require('../middleware/tokenVerify');
-const { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, acceptRejectUserRequest, userFinanceAllocate, UserById, deleteUserByUserId } = require('../controller/user');
+const { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, acceptRejectUserRequest, userFinanceAllocate, UserById, deleteUserByUserId, updateUserPlanByUserId, updateUserDetailsByUserId } = require('../controller/user');
 const router = express.Router();
 
 // update user
@@ -14,6 +14,8 @@ router.delete("/reject/user/:request_id", verifyToken, rejectUserRequest);
 router.put("/finance/access/user/:userId", verifyToken, userFinanceAllocate);
 router.delete("/delete/user/:userId", verifyToken, deleteUserByUserId);
 router.post("/details/user/:userId", verifyToken, UserById);
+router.put("/update/plan/:userId", verifyToken, updateUserPlanByUserId);
+router.put("/update/details/:userId", verifyToken, updateUserDetailsByUserId);
 
 
 module.exports = router;

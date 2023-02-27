@@ -310,4 +310,97 @@ const deleteUserByUserId = (req, res) => {
     }
 }
 
-module.exports = { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, UserById, acceptRejectUserRequest, userFinanceAllocate, deleteUserByUserId }
+
+
+function serverDateFormat(dateFormat) {
+
+    // Create a new Date object from the ISO 8601 formatted date string
+    const date = new Date(dateFormat);
+
+    // Extract the day, month, and year components from the Date object
+    const day = ('0' + (date.getUTCDate() + 1)).slice(-2);
+    const month = ('0' + (date.getUTCMonth() + 1)).slice(-2); // month is zero-indexed, so add 1 to get the correct value
+    const year = date.getUTCFullYear();
+
+    // Format the day, month, and year components into the desired string format
+    const formattedDateString = `${year}-${month}-${day}`;
+
+    // return the formatted date string
+    return formattedDateString;
+}
+
+
+const updateUserPlanByUserId = (req, res) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                const access_to = await serverDateFormat(req.body.updateDate)
+                console.log(access_to);
+                const newDate = Date.now()
+                const access_from = await serverDateFormat(newDate)
+                db.query(`UPDATE users SET access_to = '${access_to}', access_from= '${access_from}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    console.log(result1);
+                    if (result1.affectedRows > 0) {
+                        db.query(`SELECT * FROM users WHERE user_id = '${req.params.userId}'`, async function (err, result2) {
+                            if (err) {
+                                next(createError(404, err.message))
+                            }
+                            res.status(200).json({ success: true, data: result2 })
+                        })
+                    } else {
+                        res.status(200).json({ success: true, message: "Already plan update" })
+                    }
+                })
+            } else {
+                next(404, "Sorry you are not admin")
+            }
+        })
+    } catch (error) {
+
+    }
+}
+
+const updateUserDetailsByUserId = (req, res) => {
+    const { name, email, address, mobile, balance, is_active } = req.body
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                db.query(`UPDATE users SET name = '${name}', email= '${email}', address= '${address}', mobile= '${mobile}', balance= '${balance}', is_active= '${is_active}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    db.query(`UPDATE userrequest SET name = '${name}', email= '${email}', address= '${address}', mobile= '${mobile}' WHERE request_id='${req.params.userId}'`, function (err, result2) {
+                        if (err) {
+                            next(createError(404, err.message))
+                        }
+                        if (result2.affectedRows > 0) {
+                            db.query(`SELECT * FROM users INNER JOIN userrequest ON userrequest.request_id = users.user_id WHERE users.user_id = '${req.params.userId}'`, async function (err, result3) {
+                                if (err) {
+                                    next(createError(404, err.message))
+                                }
+                                res.status(200).json({ success: true, message: "Successfully updated", data: result3 })
+                            })
+                        } else {
+                            res.status(200).json({ success: true, message: "Already user update" })
+                        }
+                    })
+                })
+            } else {
+                next(404, "Sorry you are not admin")
+            }
+        })
+    } catch (error) {
+
+    }
+}
+
+module.exports = { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, UserById, acceptRejectUserRequest, userFinanceAllocate, deleteUserByUserId, updateUserPlanByUserId, updateUserDetailsByUserId }
