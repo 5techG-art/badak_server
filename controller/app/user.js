@@ -118,7 +118,7 @@ const allVehicleRecordByUserId = (req, res, next) => {
 // post request for all rc number & Mek and Model from vehicle table with user id
 const vehicleFindByUserWithVehicleId = (req, res, next) => {
     try {
-        db.query(`SELECT finance_id FROM users WHERE user_id = '${req.id}'`, function (err, result1) {
+        db.query(`SELECT finance_id, name FROM users WHERE user_id = '${req.id}'`, function (err, result1) {
             if (err) {
                 return next(createError(404, err.message))
             }
@@ -128,8 +128,13 @@ const vehicleFindByUserWithVehicleId = (req, res, next) => {
                         if (err) {
                             return res.json({ success: false, message: err.message });
                         }
-                        const { branch_code, finance_id, is_confirm, is_cancel, ...data } = result2[0]
-                        res.json({ success: true, data: data });
+                        if (result2.length > 0) {
+                            db.query(`INSERT INTO usersearch (rc_number, mek_and_model, chassis_number,vehicle_id, user_id, location, longitude, latitude, user_name) VALUES ('${result2[0].rc_number}','${result2[0].mek_and_model}','${result2[0].chassis_number}','${result2[0].vehicle_id}', '${req.id}','${req.body.location}','${req.body.longitude}','${req.body.latitude}','${result1[0].name}')`)
+                            const { branch_code, finance_id, is_confirm, is_cancel, vehicle_id, ...data } = result2[0]
+                            res.status(200).json({ success: true, data: data });
+                        } else {
+                            res.status(404).json({ success: false, message: "Data not found" })
+                        }
                     })
                 } else {
                     let values = result1[0].finance_id.slice(0, -1)
@@ -140,8 +145,13 @@ const vehicleFindByUserWithVehicleId = (req, res, next) => {
                         if (err) {
                             return res.json({ success: false, message: err.message });
                         }
-                        const { branch_code, finance_id, is_confirm, is_cancel, ...data } = result2[0]
-                        res.json({ success: true, data: data });
+                        if (result2.length > 0) {
+                            db.query(`INSERT INTO usersearch (rc_number, mek_and_model, chassis_number,vehicle_id, user_id, location, longitude, latitude, user_name) VALUES ('${result2[0].rc_number}','${result2[0].mek_and_model}','${result2[0].chassis_number}','${result2[0].vehicle_id}', '${req.id}','${req.body.location}','${req.body.longitude}','${req.body.latitude}','${result1[0].name}')`)
+                            const { branch_code, finance_id, is_confirm, is_cancel, vehicle_id, ...data } = result2[0]
+                            res.status(200).json({ success: true, data: data });
+                        } else {
+                            res.status(404).json({ success: false, message: "Data not found" })
+                        }
                     })
                 }
             }
@@ -242,7 +252,11 @@ const vehicleFindByUserWithRcNumberInSearch = (req, res, next) => {
                         if (err) {
                             return res.json({ success: false, message: err.message });
                         }
-                        res.status(200).json({ success: true, data: result2 });
+                        if (result2.length > 0) {
+                            res.status(200).json({ success: true, data: result2 });
+                        } else {
+                            res.status(404).json({ success: true, message: "Data not found", data: result2 });
+                        }
                     })
                 } else {
                     let values = result1[0].finance_id.slice(0, -1)
@@ -253,7 +267,11 @@ const vehicleFindByUserWithRcNumberInSearch = (req, res, next) => {
                         if (err) {
                             return res.json({ success: false, message: err.message });
                         }
-                        res.status(200).json({ success: true, data: result2 });
+                        if (result2.length > 0) {
+                            res.status(200).json({ success: true, data: result2 });
+                        } else {
+                            res.status(404).json({ success: true, message: "Data not found", data: result2 });
+                        }
                     })
                 }
             }

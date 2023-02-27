@@ -38,15 +38,43 @@ const allUser = async (req, res, next) => {
                 return next((createError(404, err.message)))
             }
             if (result.length > 0) {
-                db.query(`SELECT * FROM users`, async function (err, result1) {
+
+                db.query(`SELECT * FROM users INNER JOIN userrequest ON userrequest.request_id = users.user_id`, async function (err, result1) {
                     if (err) {
                         return next((createError(404, err.message)))
                     }
-                    // const withoutPassword = result1.map((user) => {
-                    //     let details = [user.password, ...user]
-                    //     return details
-                    // })
-                    res.status(200).json({ success: true, data: result1 })
+                    if (result1.length > 0) {
+                        res.status(200).json({ success: true, data: result1 })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found", data: result1 })
+                    }
+                })
+            } else {
+                res.status(404).json({ success: false, message: "You are not valid admin" })
+            }
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+const UserById = async (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0) {
+
+                db.query(`SELECT * FROM users INNER JOIN userrequest ON userrequest.request_id = users.user_id WHERE users.user_id = '${req.params.userId}'`, async function (err, result1) {
+                    if (err) {
+                        return next((createError(404, err.message)))
+                    }
+                    if (result1.length > 0) {
+                        res.status(200).json({ success: true, data: result1 })
+                    } else {
+                        res.status(404).json({ success: false, message: "Data not found", data: result1 })
+                    }
                 })
             } else {
                 res.status(404).json({ success: false, message: "You are not valid admin" })
@@ -206,5 +234,84 @@ const acceptRejectUserRequest = async (req, res, next) => {
 }
 
 
+const userFinanceAllocate = (req, res, next) => {
+    try {
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, function (err, result) {
+            if (err) {
+                next(createError(404, err.message))
+            }
+            if (result.length > 0) {
+                db.query(`SELECT finance_id FROM users WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    const financeIds = result1[0].finance_id.split(",");
+                    const exists = financeIds.includes(req.body.finance_id);
 
-module.exports = { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, acceptRejectUserRequest }
+                    // Update the finance ID for the user
+                    if (exists) {
+                        db.query(`UPDATE users SET finance_id = REPLACE(finance_id, ',${req.body.finance_id}', '') WHERE user_id = '${req.params.userId}'`, function (err, updateResult) {
+                            if (err) {
+                                return next(createError(500, err.message));
+                            }
+                            res.status(200).json({ success: true, data: updateResult });
+                        });
+                    } else {
+                        db.query(`UPDATE users SET finance_id = CONCAT(',${req.body.finance_id}',finance_id) WHERE user_id = '${req.params.userId}'`, function (err, updateResult) {
+                            if (err) {
+                                return next(createError(500, err.message));
+                            }
+                            res.status(200).json({ success: true, data: updateResult });
+                        });
+                    }
+                })
+            } else {
+                next(404, "Sorry you are not admin")
+            }
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+const deleteUserByUserId = (req, res) => {
+    try {
+        console.log("Hello this is");
+        db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, function (err, result) {
+            if (err) {
+                next(createError(404, err.message))
+            }
+            console.log("inder");
+            if (result.length > 0) {
+                db.query(`DELETE FROM users WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    console.log(result1);
+                    if (result1.affectedRows > 0) {
+                        db.query(`DELETE FROM userrequest WHERE request_id='${req.params.userId}'`, function (err, result2) {
+                            if (err) {
+                                next(createError(404, err.message))
+                            }
+                            console.log(result2);
+                            if (result2.affectedRows > 0) {
+                                res.status(200).json({ success: true, message: "SuccessFully deleted" })
+                            } else {
+                                res.status(200).json({ success: true, message: "Already data deleted" })
+                            }
+                        })
+                    } else {
+                        res.status(200).json({ success: true, message: "Already data deleted" })
+                    }
+                })
+            } else {
+                next(404, "Sorry you are not admin")
+            }
+        })
+    } catch (error) {
+
+    }
+}
+
+module.exports = { allUser, userSignInRequest, allRequestUser, acceptUserRequest, rejectUserRequest, UserById, acceptRejectUserRequest, userFinanceAllocate, deleteUserByUserId }
