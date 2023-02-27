@@ -277,24 +277,20 @@ const userFinanceAllocate = (req, res, next) => {
 
 const deleteUserByUserId = (req, res) => {
     try {
-        console.log("Hello this is");
         db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, function (err, result) {
             if (err) {
                 next(createError(404, err.message))
             }
-            console.log("inder");
             if (result.length > 0) {
                 db.query(`DELETE FROM users WHERE user_id='${req.params.userId}'`, function (err, result1) {
                     if (err) {
                         next(createError(404, err.message))
                     }
-                    console.log(result1);
                     if (result1.affectedRows > 0) {
                         db.query(`DELETE FROM userrequest WHERE request_id='${req.params.userId}'`, function (err, result2) {
                             if (err) {
                                 next(createError(404, err.message))
                             }
-                            console.log(result2);
                             if (result2.affectedRows > 0) {
                                 res.status(200).json({ success: true, message: "SuccessFully deleted" })
                             } else {
