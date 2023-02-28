@@ -81,27 +81,112 @@ const allVehicleRecordByUserId = (req, res, next) => {
             if (err) {
                 return next(createError(404, err.message))
             }
-            // console.log(result1);
             if (result1.length > 0) {
-                if (result1[0].finance_id.length === 0) {
-                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id FROM vehicle`, function (err, result2) {
-                        if (err) {
-                            return res.json({ success: false, message: err.message });
+                db.query(`SELECT update_date FROM uservehicledate WHERE user_id= '${req.id}'`, function (err, result3) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    if (result3.length > 0) {
+                        const userFirstDate = new Date(result3[0].update_date)
+                        const year = userFirstDate.getFullYear();
+                        const month = ('0' + (userFirstDate.getMonth() + 1)).slice(-2);
+                        const day = ('0' + userFirstDate.getDate()).slice(-2);
+                        const hour = ('0' + userFirstDate.getHours()).slice(-2);
+                        const minute = ('0' + userFirstDate.getMinutes()).slice(-2);
+                        const second = ('0' + userFirstDate.getSeconds()).slice(-2);
+                        const formattedDate = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+                        if (result1[0].finance_id.length === 0) {
+                            db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch,financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE upload_time > '${formattedDate}'`, function (err, result2) {
+                                if (err) {
+                                    next(createError(404, err.message))
+                                }
+                                // res.json({ success: true, total: result2.length, data: result2 });
+                                if (result2.length > 0) {
+                                    db.query(`UPDATE uservehicledate SET update_date = CURRENT_TIMESTAMP`, function (err, result4) {
+                                        if (err) {
+                                            next(createError(404, err.message))
+                                        }
+                                        console.log(result4);
+                                        if (result4.affectedRows > 0) {
+                                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                                        }
+                                    })
+                                } else {
+                                    res.status(200).json({ success: true, data: result2, message: "Data not for update" })
+                                }
+                            })
+                        } else {
+                            let values = result1[0].finance_id.slice(0, -1)
+                            const elements = values.split(",").filter(Boolean);
+                            const quotedElements = elements.map(element => `'${element}'`);
+                            const outputString = quotedElements.join(",");
+                            db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch, financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE finance_id NOT IN (${outputString}) AND upload_time > '${formattedDate}'`, function (err, result2) {
+                                if (err) {
+                                    next(createError(404, err.message))
+                                }
+                                if (result2.length > 0) {
+                                    db.query(`UPDATE uservehicledate SET update_date = CURRENT_TIMESTAMP`, function (err, result4) {
+                                        if (err) {
+                                            next(createError(404, err.message))
+                                        }
+                                        console.log(result4);
+                                        if (result4.affectedRows > 0) {
+                                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                                        }
+                                    })
+                                } else {
+                                    res.status(200).json({ success: true, data: result2, message: "Data not for update" })
+                                }
+                            })
                         }
-                        res.json({ success: true, total: result2.length, data: result2 });
-                    })
-                } else {
-                    let values = result1[0].finance_id.slice(0, -1)
-                    const elements = values.split(",");
-                    const quotedElements = elements.map(element => `'${element}'`);
-                    const outputString = quotedElements.join(",");
-                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id FROM vehicle WHERE finance_id NOT IN (${outputString})`, function (err, result2) {
-                        if (err) {
-                            return res.json({ success: false, message: err.message });
+                    } else {
+                        if (result1[0].finance_id.length === 0) {
+                            db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch,financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle`, function (err, result2) {
+                                if (err) {
+                                    next(createError(404, err.message))
+                                }
+                                if (result2.length > 0) {
+                                    db.query(`INSERT INTO uservehicledate (user_id, update_date) VALUES ('${req.id}', CURRENT_TIMESTAMP)`, function (err, result4) {
+                                        if (err) {
+                                            next(createError(404, err.message))
+                                        }
+                                        console.log(result4);
+                                        if (result4.affectedRows > 0) {
+                                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                                        }
+                                    })
+                                } else {
+                                    next(createError(404, "Data not found"))
+                                }
+                            })
+                        } else {
+                            let values = result1[0].finance_id.slice(0, -1)
+                            const elements = values.split(",").filter(Boolean);
+                            const quotedElements = elements.map(element => `'${element}'`);
+                            const outputString = quotedElements.join(",");
+                            db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch, financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE finance_id NOT IN (${outputString})`, function (err, result2) {
+                                if (err) {
+                                    return res.json({ success: false, message: err.message });
+                                }
+                                if (result2.length > 0) {
+                                    db.query(`INSERT INTO uservehicledate (user_id, update_date) VALUES ('${req.id}', CURRENT_TIMESTAMP)`, function (err, result4) {
+                                        if (err) {
+                                            next(createError(404, err.message))
+                                        }
+                                        console.log(result4);
+                                        if (result4.affectedRows > 0) {
+                                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                                        } else {
+                                            next(createError(404, "Not upload"))
+                                        }
+                                    })
+                                } else {
+                                    next(createError(404, "Data not found"))
+                                }
+                            })
                         }
-                        res.json({ success: true, total: result2.length, data: result2 });
-                    })
-                }
+                    }
+                })
             }
             else {
                 res.json({ success: false, message: "Record not found" });
@@ -118,6 +203,7 @@ const allVehicleRecordByUserId = (req, res, next) => {
 // post request for all rc number & Mek and Model from vehicle table with user id
 const vehicleFindByUserWithVehicleId = (req, res, next) => {
     try {
+        console.log(req.id);
         db.query(`SELECT finance_id, name FROM users WHERE user_id = '${req.id}'`, function (err, result1) {
             if (err) {
                 return next(createError(404, err.message))
@@ -163,6 +249,8 @@ const vehicleFindByUserWithVehicleId = (req, res, next) => {
                         }
                     })
                 }
+            } else {
+                next(createError(404, "User not found"))
             }
         });
     } catch (error) {
