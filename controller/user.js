@@ -125,7 +125,7 @@ const acceptUserRequest = async (req, res, next) => {
                         return next((createError(404, err.message)))
                     }
                     if (result1.affectedRows > 0) {
-                        db.query(`INSERT INTO users (name, email, address, mobile1, user_id, image, kyc_image, dra_image, kyc_type) SELECT name, email, address, mobile, request_id, image, kyc_image, dra_image, kyc_type FROM userrequest WHERE request_id = '${req.params.request_id}'`, async function (err, result2) {
+                        db.query(`INSERT INTO users (name, email, address, mobile, user_id) SELECT name, email, address, mobile, request_id FROM userrequest WHERE request_id = '${req.params.request_id}'`, async function (err, result2) {
                             if (err) {
                                 return next((createError(404, err.message)))
                             }
@@ -330,7 +330,7 @@ function serverDateFormat(dateFormat) {
 }
 
 
-const updateUserPlanByUserId = (req, res) => {
+const updateUserPlanByUserId = (req, res, next) => {
     try {
         db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
             if (err) {
@@ -338,10 +338,12 @@ const updateUserPlanByUserId = (req, res) => {
             }
             if (result.length > 0) {
                 const access_to = await serverDateFormat(req.body.updateDate)
-                console.log(access_to);
-                const newDate = Date.now()
+                const newDate = new Date()
+                console.log(newDate);
                 const access_from = await serverDateFormat(newDate)
-                db.query(`UPDATE users SET access_to = '${access_to}', access_from= '${access_from}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                console.log(access_to);
+                console.log(access_from);
+                db.query(`UPDATE users SET access_to = '${access_to}', access_from = '${access_from}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
                     if (err) {
                         next(createError(404, err.message))
                     }
@@ -358,7 +360,7 @@ const updateUserPlanByUserId = (req, res) => {
                     }
                 })
             } else {
-                next(404, "Sorry you are not admin")
+                next(createError(404, "Sorry you are not admin"))
             }
         })
     } catch (error) {
@@ -395,7 +397,7 @@ const updateUserDetailsByUserId = (req, res) => {
                     })
                 })
             } else {
-                next(404, "Sorry you are not admin")
+                next(createError(404, "Sorry you are not admin"))
             }
         })
     } catch (error) {

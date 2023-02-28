@@ -129,9 +129,18 @@ const vehicleFindByUserWithVehicleId = (req, res, next) => {
                             return res.json({ success: false, message: err.message });
                         }
                         if (result2.length > 0) {
-                            db.query(`INSERT INTO usersearch (rc_number, mek_and_model, chassis_number,vehicle_id, user_id, location, longitude, latitude, user_name) VALUES ('${result2[0].rc_number}','${result2[0].mek_and_model}','${result2[0].chassis_number}','${result2[0].vehicle_id}', '${req.id}','${req.body.location}','${req.body.longitude}','${req.body.latitude}','${result1[0].name}')`)
-                            const { branch_code, finance_id, is_confirm, is_cancel, vehicle_id, ...data } = result2[0]
-                            res.status(200).json({ success: true, data: data });
+                            db.query(`INSERT INTO usersearch (rc_number, mek_and_model, chassis_number,vehicle_id, user_id, location, longitude, latitude, user_name) VALUES ('${result2[0].rc_number}','${result2[0].mek_and_model}','${result2[0].chassis_number}','${result2[0].vehicle_id}', '${req.id}','${req.body.location}','${req.body.longitude}','${req.body.latitude}','${result1[0].name}')`, function (err, result6) {
+                                if (err) {
+                                    next(createError(404, err.message))
+                                }
+                                if (result6.length > 0) {
+                                    const { branch_code, finance_id, is_confirm, is_cancel, vehicle_id, ...data } = result2[0]
+                                    res.status(200).json({ success: true, data: data });
+                                } else {
+                                    next(createError(404, "Unsuccessful"))
+                                }
+                            })
+
                         } else {
                             res.status(404).json({ success: false, message: "Data not found" })
                         }
