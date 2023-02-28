@@ -133,14 +133,14 @@ const vehicleFindByUserWithVehicleId = (req, res, next) => {
                                 if (err) {
                                     next(createError(404, err.message))
                                 }
-                                if (result6.length > 0) {
+                                console.log(result6);
+                                if (result6.affectedRows > 0) {
                                     const { branch_code, finance_id, is_confirm, is_cancel, vehicle_id, ...data } = result2[0]
                                     res.status(200).json({ success: true, data: data });
                                 } else {
                                     next(createError(404, "Unsuccessful"))
                                 }
                             })
-
                         } else {
                             res.status(404).json({ success: false, message: "Data not found" })
                         }
