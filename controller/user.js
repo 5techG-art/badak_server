@@ -327,7 +327,7 @@ function serverDateFormat(dateFormat) {
     const date = new Date(dateFormat);
 
     // Extract the day, month, and year components from the Date object
-    const day = ('0' + (date.getUTCDate() + 1)).slice(-2);
+    const day = ('0' + (date.getUTCDate())).slice(-2);
     const month = ('0' + (date.getUTCMonth() + 1)).slice(-2); // month is zero-indexed, so add 1 to get the correct value
     const year = date.getUTCFullYear();
 
@@ -346,13 +346,9 @@ const updateUserPlanByUserId = (req, res, next) => {
                 next(createError(404, err.message))
             }
             if (result.length > 0) {
-                const access_to = await serverDateFormat(req.body.updateDate)
                 const newDate = new Date()
-                console.log(newDate);
                 const access_from = await serverDateFormat(newDate)
-                console.log(access_to);
-                console.log(access_from);
-                db.query(`UPDATE users SET access_to = '${access_to}', access_from = '${access_from}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
+                db.query(`UPDATE users SET access_to = '${req.body.updateDate}', access_from = '${access_from}' WHERE user_id='${req.params.userId}'`, function (err, result1) {
                     if (err) {
                         next(createError(404, err.message))
                     }
