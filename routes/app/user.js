@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId } = require('../../controller/app/user');
+const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds } = require('../../controller/app/user');
 const router = express.Router();
 const { body } = require('express-validator');
 const multer = require('multer')
@@ -44,6 +44,7 @@ router.post("/new/app-user", [
 ], userSignInRequest);
 router.post("/vehicle/:userId", accessMiddleware, vehicleRecordByUserId);
 router.post("/vehicle/all/:userId", accessMiddleware, allVehicleRecordByUserId);
+router.post("/vehicles/all/:userId", accessMiddleware, allVehicleRecordByUserIds);
 // router.post("/vehicle/rc-number/:userId/:rc_number", accessMiddleware, vehicleFindByUserWithRcNumber);
 router.post("/vehicle/vehicle-id/:userId/:vehicleId", accessMiddleware, vehicleFindByUserWithVehicleId);
 // router.post("/vehicle/chassis-number/:userId/:rc_number", accessMiddleware, vehicleFindByUserWithChassisNumber);

@@ -200,6 +200,61 @@ const allVehicleRecordByUserId = (req, res, next) => {
 
 
 
+
+
+
+// ***************  FOR TESTING  START  ****************
+
+// post request for all rc number & Mek and Model from vehicle table with user id
+const allVehicleRecordByUserIds = (req, res, next) => {
+    try {
+        db.query(`SELECT finance_id FROM users WHERE user_id = '${req.id}'`, function (err, result1) {
+            if (err) {
+                return next(createError(404, err.message))
+            }
+            if (result1.length > 0) {
+                if (result1[0].finance_id.length === 0) {
+                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch,financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle`, function (err, result2) {
+                        if (err) {
+                            next(createError(404, err.message))
+                        }
+                        if (result2.length > 0) {
+                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                        } else {
+                            next(createError(404, "Data not found"))
+                        }
+                    })
+                } else {
+                    let values = result1[0].finance_id.slice(0, -1)
+                    const elements = values.split(",").filter(Boolean);
+                    const quotedElements = elements.map(element => `'${element}'`);
+                    const outputString = quotedElements.join(",");
+                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch, financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE finance_id NOT IN (${outputString})`, function (err, result2) {
+                        if (err) {
+                            return res.json({ success: false, message: err.message });
+                        }
+                        if (result2.length > 0) {
+                            res.status(200).json({ success: true, total: result2.length, data: result2 });
+                        } else {
+                            next(createError(404, "Data not found"))
+                        }
+                    })
+                }
+            }
+            else {
+                res.json({ success: false, message: "Record not found" });
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+
+// ***************  FOR TESTING  END  ****************
+
+
 // post request for all rc number & Mek and Model from vehicle table with user id
 const vehicleFindByUserWithVehicleId = (req, res, next) => {
     try {
@@ -457,6 +512,9 @@ const confirmVehicleWithUserByRcNumberAndUserId = (req, res, next) => {
 
 // post request for all rc number & Mek and Model from vehicle table with user id
 const confirmVehicleWithUserByVehicleIdAndUserId = (req, res, next) => {
+    const rc_number = req.body.rc_number
+    const chassis_number = req.body.chassis_number
+    console.log({ rc_number, chassis_number });
     try {
         db.query(`SELECT * FROM confirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result1) {
             if (err) {
@@ -469,9 +527,9 @@ const confirmVehicleWithUserByVehicleIdAndUserId = (req, res, next) => {
                     if (err) {
                         return res.json({ success: false, message: err.message });
                     }
-                    db.query(`INSERT INTO confirmvehicle (rc_number, user_id, name, chassis_number, vehicle_id) VALUES ('${req.body.rc_number}', '${req.id}', '${result2[0].name}', '${req.body.chassis_number}', '${req.params.vehicleId}')`, function (err, result2) {
+                    db.query(`INSERT INTO confirmvehicle (rc_number, user_id, name, chassis_number, vehicle_id) VALUES ('${rc_number}', '${req.id}', '${result2[0].name}', '${chassis_number}', '${req.params.vehicleId}')`, function (err, result2) {
                         if (err) {
-                            return res.json({ success: false, message: err.message });
+                            next(createError(404, err.message))
                         }
                         if (result2.affectedRows > 0) {
                             next()
@@ -646,6 +704,8 @@ const uploadUserDraDocuments = (req, res, next) => {
 
 // Uplaod user dra cerificate
 const uploadVehicleImageByUser = (req, res, next) => {
+    const re = req.body.rc_number
+    console.log(re);
     try {
         // console.log(req.file);
         if (req.files.length < 1) {
@@ -662,7 +722,7 @@ const uploadVehicleImageByUser = (req, res, next) => {
         const img3 = process.env.IMAGEURL + req.files[2].filename;
         const img4 = process.env.IMAGEURL + req.files[3].filename;
         const img5 = process.env.IMAGEURL + req.files[4].filename;
-        db.query(`INSERT INTO vehicleimage (first,second, third, forth, fifth, vehicle_id) VALUES ('${img1}','${img2}','${img3}','${img4}','${img5}','${342342}')`, async function (err, result1) {
+        db.query(`INSERT INTO vehicleimage (first,second, third, forth, fifth, vehicle_id) VALUES ('${img1}','${img2}','${img3}','${img4}','${img5}','${req.params.vehicleId}')`, async function (err, result1) {
             if (err) {
                 return next(createError(404, err.message))
             }
@@ -683,4 +743,4 @@ const uploadVehicleImageByUser = (req, res, next) => {
 
 
 
-module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId }
+module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds }

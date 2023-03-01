@@ -468,8 +468,7 @@ const confirmVehicleDetailsWithImage = async (req, res, next) => {
                         return next((createError(404, err.message)))
                     }
                     if (result1.length > 0) {
-                        const { id, finance_id, branch_code, ...data } = result1[0]
-                        res.status(200).json({ success: true, data: data })
+                        res.status(200).json({ success: true, data: result1 })
                     } else {
                         res.status(404).json({ success: false, message: "Data not found", data: result1 })
                     }

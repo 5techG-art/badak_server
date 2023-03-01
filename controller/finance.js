@@ -83,8 +83,21 @@ const updateFinance = async (req, res, next) => {
                     if (err) {
                         return next((createError(404, err.message)))
                     }
-                    if (result1.affectedRows > 0)
-                        res.status(200).json({ success: true, message: "Successfully updated" })
+                    if (result1.affectedRows > 0) {
+                        db.query(`SELECT * FROM finance WHERE id = '${req.params.financeId}'`, async function (err, result2) {
+                            if (err) {
+                                return next((createError(404, err.message)))
+                            }
+                            if (result2.length > 0) {
+                                res.status(200).json({ success: true, message: "Successfully updated", data: result2 })
+                            }
+                            else {
+                                next(createError(404, "Data not Updated"))
+                            }
+                        })
+                    } else {
+                        next(createError(404, "Data not Updated"))
+                    }
                 })
 
             } else {

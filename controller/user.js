@@ -129,7 +129,16 @@ const acceptUserRequest = async (req, res, next) => {
                             if (err) {
                                 return next((createError(404, err.message)))
                             }
-                            res.status(200).json({ success: true, data: result2 })
+                            if (result2.affectedRows > 0) {
+                                db.query(`SELECT * FROM users INNER JOIN userrequest ON userrequest.request_id = users.user_id WHERE users.user_id = '${req.params.request_id}'`, async function (err, result3) {
+                                    if (err) {
+                                        next(createError(404, err.message))
+                                    }
+                                    res.status(200).json({ success: true, data: result3 })
+                                })
+                            } else {
+                                res.status(200).json({ success: true, message: "Already accept" })
+                            }
                         })
                     } else {
                         return next(createError(400, "User not found"))
