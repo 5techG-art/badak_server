@@ -27,28 +27,60 @@ const userConfirmVehicle = async (req, res, next) => {
 
 
 const adminConfirmVehicle = async (req, res, next) => {
+    const { confirm } = req.body
     try {
         db.query(`SELECT * FROM admin WHERE admin_id = '${req.id.admin_id}'`, async function (err, result) {
             if (err) {
                 return next((createError(404, err.message)))
             }
             if (result.length > 0) {
-                db.query(`UPDATE confirmvehicle SET confirm_status = 1 WHERE rc_number = '${req.params.rc_number}'`, async function (err, result1) {
+                db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result3) {
                     if (err) {
-                        return next((createError(404, err.message)))
+                        next(createError(404, err.message))
                     }
-                    if (result1.affectedRows > 0) {
-                        db.query(`DELETE FROM vehicle WHERE rc_number = '${req.params.rc_number}'`, async function (err, result2) {
+                    if (result3.length > 0) {
+                        db.query(`UPDATE adminconfirmvehicle SET is_confirm = '${confirm}' WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result2) {
                             if (err) {
-                                return next((createError(404, "This vehicle already exists")))
+                                next(createError(404, err.message))
                             }
-                            res.status(200).json({ success: true, data: result2 })
+                            if (result2.affectedRows > 0) {
+                                db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result3) {
+                                    if (err) {
+                                        next(createError(404, err.message))
+                                    }
+                                    res.status(200).json({ success: true, data: result3 })
+                                })
+                            } else {
+                                next(createError(404, "Data not found"))
+                            }
                         })
                     } else {
-                        return next(createError(400, "vehicle not found"))
+                        db.query(`INSERT INTO adminconfirmvehicle (rc_number, mek_and_model,vehicle_id, branch, financer, area, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no, is_confirm) SELECT rc_number, mek_and_model,vehicle_id, branch, financer, area, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no, '${confirm}' FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result1) {
+                            if (err) {
+                                return next((createError(404, err.message)))
+                            }
+                            if (result1.affectedRows > 0) {
+                                db.query(`DELETE FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result2) {
+                                    if (err) {
+                                        return next((createError(404, "This vehicle already exists")))
+                                    }
+                                    if (result2.affectedRows > 0) {
+                                        db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result3) {
+                                            if (err) {
+                                                next(createError(404, err.message))
+                                            }
+                                            res.status(200).json({ success: true, data: result3 })
+                                        })
+                                    } else {
+                                        next(createError(404, "Vehicle not found"))
+                                    }
+                                })
+                            } else {
+                                return next(createError(400, "vehicle not found"))
+                            }
+                        })
                     }
                 })
-
             } else {
                 res.status(404).json({ success: false, message: "You are not valid admin" })
             }
@@ -57,7 +89,6 @@ const adminConfirmVehicle = async (req, res, next) => {
         next((createError(500, "Internal server error")))
     }
 }
-
 
 
 const deleteBranchVehicle = async (req, res, next) => {

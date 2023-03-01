@@ -33,6 +33,34 @@ const userSignInRequest = async (req, res, next) => {
 
 
 
+// login 
+// user sign in request handle
+const userLoginInRequest = async (req, res, next) => {
+    const { mobile } = req.body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log(errors.array());
+        return next(createError(404, `${errors.array().map(value => {
+            return " " + value.param
+        })} is required`))
+    }
+    try {
+        db.query(`SELECT mobile FROM userrequest WHERE mobile = '${mobile}'`, async function (err, result) {
+            if (err) {
+                return next((createError(404, err.message)))
+            }
+            if (result.length > 0)
+                res.status(200).json({ success: false, message: "This mobile number is already in use" })
+            else
+                next(createError(404, "This mobile number is not in use"))
+        })
+    } catch (error) {
+        next((createError(500, "Internal server error")))
+    }
+}
+
+
+
 
 // post request for all rc number & Mek and Model from vehicle table with user id
 const vehicleRecordByUserId = (req, res, next) => {
@@ -229,7 +257,7 @@ const allVehicleRecordByUserIds = (req, res, next) => {
                     const elements = values.split(",").filter(Boolean);
                     const quotedElements = elements.map(element => `'${element}'`);
                     const outputString = quotedElements.join(",");
-                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch, financer, area, bkt, chassis_number, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE finance_id NOT IN (${outputString})`, function (err, result2) {
+                    db.query(`SELECT rc_number, mek_and_model, chassis_number,vehicle_id, branch, financer, area, engine_number, level1, level2, level3,level1con, level2con, level3con, region, ex_name, od, bkt,gv,ses9,ses17,tbr, poss, level4, level4con, contract_no FROM vehicle WHERE finance_id NOT IN (${outputString})`, function (err, result2) {
                         if (err) {
                             return res.json({ success: false, message: err.message });
                         }
@@ -743,4 +771,4 @@ const uploadVehicleImageByUser = (req, res, next) => {
 
 
 
-module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds }
+module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest }

@@ -1,4 +1,4 @@
-const { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage } = require('../controller/vehicle');
+const { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage, adminRejectVehicle } = require('../controller/vehicle');
 const verifyToken = require('../middleware/tokenVerify');
 const express = require('express');
 const db = require('../config/database');
@@ -31,7 +31,7 @@ class mySqlApi {
 const mySqlApis = new mySqlApi();
 // update user
 // router.get("/user/confirm/:rc_number", verifyToken, update);
-router.put("/admin/confirm/:rc_number", verifyToken, adminConfirmVehicle);
+router.post("/admin/confirm/:vehicleId", verifyToken, adminConfirmVehicle);
 router.post("/admin/all/vehicle", verifyToken, vehicleWithLimit);
 router.post("/admin/find/vehicle/rc-number", verifyToken, vehicleSearchByRcNumber);
 router.post("/admin/find/vehicle/chassis-number", verifyToken, vehicleSearchByChassisNumber);

@@ -534,16 +534,16 @@
     "colId": "ae43bec2-a92e-4e0e-b455-42625d527e6f",
     "containerId": "386ae93d-bd9f-4ac4-b675-a3f26ac330f3",
     "name": "sign-in request",
-    "url": "http://localhost:4000/api/app/user/new/app-user",
+    "url": "http://localhost:4000/api/app/user/login/app-user",
     "method": "POST",
     "sortNum": 300000,
     "created": "2023-02-11T04:32:37.552Z",
-    "modified": "2023-02-28T11:40:18.196Z",
+    "modified": "2023-03-01T16:24:05.259Z",
     "headers": [],
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{\n  \"name\":\"sunil grovar\",\n  \"mobile\": \"7687823350\",\n  \"id\":\"3d5432\",\n  \"address\": \"sdfkjslkfjasf\"\n}",
+      "raw": "{\n  \"name\":\"sunil grovar\",\n  \"mobile\": \"7687823357\",\n  \"id\":\"3d5432\",\n  \"address\": \"sdfkjslkfjasf\"\n}",
       "form": []
     },
     "tests": []
@@ -920,11 +920,11 @@
     "colId": "ae43bec2-a92e-4e0e-b455-42625d527e6f",
     "containerId": "386ae93d-bd9f-4ac4-b675-a3f26ac330f3",
     "name": "upload multiple vehicle image",
-    "url": "https://newcarreposerver.onrender.com/api/app/user/confirm/vehicle-id/dm3QUxbJGOZAIuQP5k5norqaE002/9",
+    "url": "http://localhost:4000/api/app/user/confirm/vehicle-id/124/10",
     "method": "POST",
     "sortNum": 510000,
     "created": "2023-02-24T05:01:46.451Z",
-    "modified": "2023-03-01T06:50:58.013Z",
+    "modified": "2023-03-01T15:10:43.515Z",
     "headers": [
       {
         "name": "Content-Type",
@@ -1235,6 +1235,30 @@
       }
     ],
     "params": [],
+    "tests": []
+  },
+  {
+    "_id": "1e0e236c-a304-4ea3-8112-7ab177991ac3",
+    "colId": "ae43bec2-a92e-4e0e-b455-42625d527e6f",
+    "containerId": "5de88d1b-84f9-473a-931b-488c7dcc0193",
+    "name": "admin confirm vehicle with vehicle id",
+    "url": "http://localhost:4000/api/vehicle/admin/confirm/11",
+    "method": "POST",
+    "sortNum": 650000,
+    "created": "2023-03-01T15:44:19.751Z",
+    "modified": "2023-03-01T17:00:52.255Z",
+    "headers": [
+      {
+        "name": "token",
+        "value": "{{token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"confirm\": 0\n}",
+      "form": []
+    },
     "tests": []
   }
 ]

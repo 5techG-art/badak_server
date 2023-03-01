@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds } = require('../../controller/app/user');
+const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest } = require('../../controller/app/user');
 const router = express.Router();
 const { body } = require('express-validator');
 const multer = require('multer')
@@ -42,6 +42,9 @@ router.post("/new/app-user", [
     body('id').notEmpty(),
     body('address').notEmpty()
 ], userSignInRequest);
+router.post("/login/app-user", [
+    body('mobile').isNumeric().isLength({ min: 10, max: 10 }),
+], userLoginInRequest);
 router.post("/vehicle/:userId", accessMiddleware, vehicleRecordByUserId);
 router.post("/vehicle/all/:userId", accessMiddleware, allVehicleRecordByUserId);
 router.post("/vehicles/all/:userId", accessMiddleware, allVehicleRecordByUserIds);
@@ -52,7 +55,7 @@ router.post("/vehicle/find/rc-number/:userId/:rc_number", accessMiddleware, vehi
 router.post("/vehicle/find/chassis-number/:userId/:chassis_number", accessMiddleware, vehicleFindByUserWithChassisNumberInSearch);
 // router.post("/confirm/rc-number/:userId", accessMiddleware, confirmVehicleWithUserByRcNumberAndUserId);
 // router.post("/confirm/chassis-number/:userId", accessMiddleware, confirmVehicleWithUserByChassisNumberAndUserId);
-router.post("/confirm/vehicle-id/:userId/:vehicleId", accessMiddleware, confirmVehicleWithUserByVehicleIdAndUserId, upload.array('file', 5), uploadVehicleImageByUser);
+router.post("/confirm/vehicle-id/:userId/:vehicleId", accessMiddleware, upload.array('file', 5), confirmVehicleWithUserByVehicleIdAndUserId, uploadVehicleImageByUser);
 router.post("/user/image/upload/:userId", upload.single('file'), uploadUserImage);
 router.post("/user/kyc/upload/:userId", upload.single('file'), uploadUserKycDocuments);
 router.post("/user/dra/upload/:userId", upload.single('file'), uploadUserDraDocuments);
