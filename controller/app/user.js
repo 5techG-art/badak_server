@@ -540,9 +540,36 @@ const confirmVehicleWithUserByRcNumberAndUserId = (req, res, next) => {
 
 // post request for all rc number & Mek and Model from vehicle table with user id
 const confirmVehicleWithUserByVehicleIdAndUserId = (req, res, next) => {
-    const rc_number = req.body.rc_number
-    const chassis_number = req.body.chassis_number
-    console.log({ rc_number, chassis_number });
+    try {
+        db.query(`SELECT name FROM users WHERE user_id = '${req.id}'`, function (err, result) {
+            if (err) {
+                return res.json({ success: false, message: err.message });
+            }
+            if (result.length > 0) {
+                db.query(`INSERT INTO confirmvehicle (rc_number, chassis_number,mek_and_model, user_id, name, vehicle_id) SELECT rc_number, chassis_number,mek_and_model, '${req.id}', '${result[0].name}', '${req.params.vehicleId}' FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result1) {
+                    if (err) {
+                        next(createError(404, err.message))
+                    }
+                    if (result1.affectedRows > 0) {
+                        res.status(200).json({ success: true, message: "Vehicle confirmed" })
+                    } else {
+                        return next(createError(404, "Vehicle not found"))
+                    }
+                })
+            } else {
+                next(createError(404, "User not found"))
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        return next(createError(500, "Internal server error"))
+    }
+}
+
+
+
+
+const alreadyConfirmVehicleWithUserByVehicleIdAndUserId = (req, res, next) => {
     try {
         db.query(`SELECT * FROM confirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result1) {
             if (err) {
@@ -551,22 +578,16 @@ const confirmVehicleWithUserByVehicleIdAndUserId = (req, res, next) => {
             if (result1.length > 0) {
                 next(createError(404, "This vehicle is already confirmed"))
             } else {
-                db.query(`SELECT name FROM users WHERE user_id = '${req.id}'`, function (err, result2) {
+                db.query(`SELECT * FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result2) {
                     if (err) {
-                        return res.json({ success: false, message: err.message });
+                        return next(createError(404, err.message))
                     }
-                    db.query(`INSERT INTO confirmvehicle (rc_number, user_id, name, chassis_number, vehicle_id) VALUES ('${rc_number}', '${req.id}', '${result2[0].name}', '${chassis_number}', '${req.params.vehicleId}')`, function (err, result2) {
-                        if (err) {
-                            next(createError(404, err.message))
-                        }
-                        if (result2.affectedRows > 0) {
-                            next()
-                            // res.status(200).json({ success: true, message: "Record successfully confirmed" });
-                        } else {
-                            return next(createError(404, "Not confirmed"))
-                        }
-                    })
-                })
+                    if (result2.length > 0) {
+                        next()
+                    } else {
+                        next(createError(404, "This vehicle not found"))
+                    }
+                });
             }
         });
     } catch (error) {
@@ -732,8 +753,6 @@ const uploadUserDraDocuments = (req, res, next) => {
 
 // Uplaod user dra cerificate
 const uploadVehicleImageByUser = (req, res, next) => {
-    const re = req.body.rc_number
-    console.log(re);
     try {
         // console.log(req.file);
         if (req.files.length < 1) {
@@ -745,17 +764,36 @@ const uploadVehicleImageByUser = (req, res, next) => {
         // const img3 = 'http://localhost:4000/api/car_repo/image/' + req.files[2].filename;
         // const img4 = 'http://localhost:4000/api/car_repo/image/' + req.files[3].filename;
         // const img5 = 'http://localhost:4000/api/car_repo/image/' + req.files[4].filename;
-        const img1 = process.env.IMAGEURL + req.files[0].filename;
-        const img2 = process.env.IMAGEURL + req.files[1].filename;
-        const img3 = process.env.IMAGEURL + req.files[2].filename;
-        const img4 = process.env.IMAGEURL + req.files[3].filename;
-        const img5 = process.env.IMAGEURL + req.files[4].filename;
+        let img1 = '', img2 = '', img3 = '', img4 = '', img5 = ''
+        if (req.files.length === 1) {
+            img1 = process.env.IMAGEURL + req.files[0].filename;
+        } else if (req.files.length === 2) {
+            img1 = process.env.IMAGEURL + req.files[0].filename;
+            img2 = process.env.IMAGEURL + req.files[1].filename;
+        } else if (req.files.length === 3) {
+            img1 = process.env.IMAGEURL + req.files[0].filename;
+            img2 = process.env.IMAGEURL + req.files[1].filename;
+            img3 = process.env.IMAGEURL + req.files[2].filename;
+        } else if (req.files.length === 4) {
+            img1 = process.env.IMAGEURL + req.files[0].filename;
+            img2 = process.env.IMAGEURL + req.files[1].filename;
+            img3 = process.env.IMAGEURL + req.files[2].filename;
+            img4 = process.env.IMAGEURL + req.files[3].filename;
+        } else if (req.files.length === 5) {
+            img1 = process.env.IMAGEURL + req.files[0].filename;
+            img2 = process.env.IMAGEURL + req.files[1].filename;
+            img3 = process.env.IMAGEURL + req.files[2].filename;
+            img4 = process.env.IMAGEURL + req.files[3].filename;
+            img5 = process.env.IMAGEURL + req.files[4].filename;
+        } else {
+            next(createError(404, "Only five images are allowed"))
+        }
         db.query(`INSERT INTO vehicleimage (first,second, third, forth, fifth, vehicle_id) VALUES ('${img1}','${img2}','${img3}','${img4}','${img5}','${req.params.vehicleId}')`, async function (err, result1) {
             if (err) {
                 return next(createError(404, err.message))
             }
             if (result1.affectedRows > 0) {
-                res.status(200).json({ success: true, message: "Record successfully confirmed" });
+                next()
             } else {
                 return next(createError(404, "Record not confirmed"))
             }
@@ -771,4 +809,4 @@ const uploadVehicleImageByUser = (req, res, next) => {
 
 
 
-module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest }
+module.exports = { vehicleRecordByUserId, userSignInRequest, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByRcNumberAndUserId, uploadUserKycDocuments, uploadUserDraDocuments, uploadUserImage, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, vehicleFindByUserWithChassisNumber, vehicleFindByUserWithVehicleId, uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest, alreadyConfirmVehicleWithUserByVehicleIdAndUserId }

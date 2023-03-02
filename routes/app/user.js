@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest } = require('../../controller/app/user');
+const { userSignInRequest, vehicleRecordByUserId, vehicleFindByUserWithRcNumber, vehicleFindByUserWithRcNumberInSearch, confirmVehicleWithUserByChassisNumberAndUserId, confirmVehicleWithUserByRcNumberAndUserId, uploadUserImage, uploadUserKycDocuments, uploadUserDraDocuments, allVehicleRecordByUserId, vehicleFindByUserWithChassisNumberInSearch, vehicleFindByUserWithChassisNumber, uploadVehicleImageByUser, vehicleFindByUserWithVehicleId, confirmVehicleWithUserByVehicleIdAndUserId, allVehicleRecordByUserIds, userLoginInRequest, alreadyConfirmVehicleWithUserByVehicleIdAndUserId } = require('../../controller/app/user');
 const router = express.Router();
 const { body } = require('express-validator');
 const multer = require('multer')
@@ -23,11 +23,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024, },
+    limits: {
+        limits: 5,
+        fileSize: 5 * 1024 * 1024,
+    },
     fileFilter: (req, file, callback) => {
+        // console.log(file);
         const allowedFileTypes = ['image/jpeg', 'image/png'];
         if (!allowedFileTypes.includes(file.mimetype)) {
-            return callback(new Error('Invalid file type'));
+            return callback(new Error('Only image are allowed'));
         }
         callback(null, true);
     },
@@ -55,7 +59,7 @@ router.post("/vehicle/find/rc-number/:userId/:rc_number", accessMiddleware, vehi
 router.post("/vehicle/find/chassis-number/:userId/:chassis_number", accessMiddleware, vehicleFindByUserWithChassisNumberInSearch);
 // router.post("/confirm/rc-number/:userId", accessMiddleware, confirmVehicleWithUserByRcNumberAndUserId);
 // router.post("/confirm/chassis-number/:userId", accessMiddleware, confirmVehicleWithUserByChassisNumberAndUserId);
-router.post("/confirm/vehicle-id/:userId/:vehicleId", accessMiddleware, upload.array('file', 5), confirmVehicleWithUserByVehicleIdAndUserId, uploadVehicleImageByUser);
+router.post("/confirm/vehicle-id/:userId/:vehicleId", accessMiddleware, alreadyConfirmVehicleWithUserByVehicleIdAndUserId, upload.array('file', 5), uploadVehicleImageByUser, confirmVehicleWithUserByVehicleIdAndUserId);
 router.post("/user/image/upload/:userId", upload.single('file'), uploadUserImage);
 router.post("/user/kyc/upload/:userId", upload.single('file'), uploadUserKycDocuments);
 router.post("/user/dra/upload/:userId", upload.single('file'), uploadUserDraDocuments);

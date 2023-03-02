@@ -37,7 +37,7 @@ const allUserSearchFilterByDate = async (req, res, next) => {
                 return next((createError(404, err.message)))
             }
             if (result.length > 0) {
-                db.query(`SELECT * FROM usersearch WHERE DATE(search_time) = '${req.body.date}'`, async function (err, result1) {
+                db.query(`SELECT * FROM usersearch WHERE DATE(search_time) = '${req.body.date}' ORDER BY search_time DESC`, async function (err, result1) {
                     if (err) {
                         return next((createError(404, err.message)))
                     }
