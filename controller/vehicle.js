@@ -60,21 +60,48 @@ const adminConfirmVehicle = async (req, res, next) => {
                                 return next((createError(404, err.message)))
                             }
                             if (result1.affectedRows > 0) {
-                                db.query(`DELETE FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result2) {
-                                    if (err) {
-                                        return next((createError(404, "This vehicle already exists")))
-                                    }
-                                    if (result2.affectedRows > 0) {
-                                        db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result3) {
-                                            if (err) {
-                                                next(createError(404, err.message))
-                                            }
-                                            res.status(200).json({ success: true, data: result3 })
-                                        })
-                                    } else {
-                                        next(createError(404, "Vehicle not found"))
-                                    }
-                                })
+                                if (confirm == 1) {
+                                    db.query(`DELETE FROM vehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result2) {
+                                        if (err) {
+                                            return next((createError(404, "This vehicle already exists")))
+                                        }
+                                        if (result2.affectedRows > 0) {
+                                            db.query(`DELETE FROM confirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result3) {
+                                                if (err) {
+                                                    return next((createError(404, "This vehicle already exists")))
+                                                }
+                                                if (result3.affectedRows > 0) {
+                                                    db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result4) {
+                                                        if (err) {
+                                                            next(createError(404, err.message))
+                                                        }
+                                                        res.status(200).json({ success: true, data: result4 })
+                                                    })
+                                                } else {
+                                                    next(createError(404, "Vehicle not found"))
+                                                }
+                                            })
+                                        } else {
+                                            next(createError(404, "Vehicle not found"))
+                                        }
+                                    })
+                                } else {
+                                    db.query(`DELETE FROM confirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, async function (err, result3) {
+                                        if (err) {
+                                            return next((createError(404, "This vehicle already exists")))
+                                        }
+                                        if (result3.affectedRows > 0) {
+                                            db.query(`SELECT * FROM adminconfirmvehicle WHERE vehicle_id = '${req.params.vehicleId}'`, function (err, result4) {
+                                                if (err) {
+                                                    next(createError(404, err.message))
+                                                }
+                                                res.status(200).json({ success: true, data: result4 })
+                                            })
+                                        } else {
+                                            next(createError(404, "Vehicle not found"))
+                                        }
+                                    })
+                                }
                             } else {
                                 return next(createError(400, "vehicle not found"))
                             }
@@ -256,7 +283,7 @@ const vehicleWithLimit = async (req, res, next) => {
                 return next((createError(404, err.message)))
             }
             if (result.length > 0) {
-                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle WHERE is_confirm = 0 LIMIT 500`, async function (err, result1) {
+                db.query(`SELECT rc_number, chassis_number,mek_and_model, vehicle_id FROM vehicle LIMIT 500`, async function (err, result1) {
                     if (err) {
                         return next((createError(404, err.message)))
                     }

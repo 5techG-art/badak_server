@@ -920,11 +920,11 @@
     "colId": "ae43bec2-a92e-4e0e-b455-42625d527e6f",
     "containerId": "386ae93d-bd9f-4ac4-b675-a3f26ac330f3",
     "name": "upload multiple vehicle image",
-    "url": "http://localhost:4000/api/app/user/confirm/vehicle-id/124/6",
+    "url": "http://localhost:4000/api/app/user/confirm/vehicle-id/124/13",
     "method": "POST",
     "sortNum": 510000,
     "created": "2023-02-24T05:01:46.451Z",
-    "modified": "2023-03-02T05:40:11.424Z",
+    "modified": "2023-03-02T05:57:16.901Z",
     "headers": [
       {
         "name": "Content-Type",
@@ -936,22 +936,12 @@
     "body": {
       "type": "formdata",
       "raw": "",
-      "form": [
-        {
-          "name": "rc_number",
-          "value": "satish",
-          "isDisabled": true
-        },
-        {
-          "name": "chassis_number",
-          "value": "3948572",
-          "isDisabled": true
-        }
-      ],
+      "form": [],
       "files": [
         {
           "name": "file",
-          "value": "c:\\Users\\shail\\OneDrive\\Pictures\\Screenshots\\Screenshot (30).png"
+          "value": "c:\\Users\\shail\\OneDrive\\Pictures\\Screenshots\\Screenshot (30).png",
+          "isDisabled": true
         },
         {
           "name": "file",
@@ -960,7 +950,8 @@
         },
         {
           "name": "file",
-          "value": "c:\\Users\\shail\\OneDrive\\Pictures\\Screenshots\\Screenshot (36).png"
+          "value": "c:\\Users\\shail\\OneDrive\\Pictures\\Screenshots\\Screenshot (36).png",
+          "isDisabled": true
         },
         {
           "name": "file",

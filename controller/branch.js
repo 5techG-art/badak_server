@@ -114,7 +114,12 @@ const deleteBranch = async (req, res, next) => {
                         return next((createError(404, err.message)))
                     }
                     if (result1.affectedRows > 0) {
-                        res.status(200).json({ success: true, message: "Successfully deleted" })
+                        db.query(`DELETE FROM vehicle WHERE branch_code = '${req.params.branchId}'`, function (err, result2) {
+                            if (err) {
+                                next(createError(404, err.message))
+                            }
+                            res.status(200).json({ success: true, message: "Successfully Deleted", data: result2 })
+                        })
                     } else {
                         res.status(200).json({ success: true, message: "Branch already deleted" })
                     }
