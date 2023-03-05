@@ -4,7 +4,7 @@ dotenv.config()
 
 // Connection configuration for MySQL database
 const db = mysql.createPool({
-  remote database credentials
+//   remote database credentials
   host: process.env.HOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
