@@ -21,7 +21,7 @@ app.use("/api/car_repo/image", express.static('public/uploads'))
 app.use(express.json())
 app.use(bodyParser.json());
 app.use(cors({
-    origin: ["https://badak.in", "http://localhost:3000"]
+    origin: ["https://badak.in", "http://localhost:3000", "https://badak-client.onrender.com"]
 }));
 app.use(helmet())
 app.use(cookies())
