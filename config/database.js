@@ -19,22 +19,6 @@ const db = mysql.createPool({
 //   database: "car_repo",
 //   connectionLimit: 20,
 //   charset: "utf8mb4"
-
-
-  // local database credentials
-  // host: "car-repo.c2kjutp1a5hu.ap-south-1.rds.amazonaws.com",
-  // user: "car_repo",
-  // password: "Carrepo123",
-  // database: "car-repo",
-  // connectionLimit: 20
-
-
-  // remote database credentials
-  // host: "localhost",
-  // user: "ubzrnkmd_carrepoadmin",
-  // password: "carrepo@123",
-  // database: "ubzrnkmd_car_repo",
-  // connectionLimit: 500
 });
 
 module.exports = db;

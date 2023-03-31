@@ -1,6 +1,8 @@
 const db = require("../config/database");
 const createError = require("../error");
 const { v4: uuid } = require("uuid")
+const fs = require('fs')
+const csv = require('csv-parser')
 
 const userConfirmVehicle = async (req, res, next) => {
     try {
@@ -542,4 +544,44 @@ const confirmVehicleDetailsWithImage = async (req, res, next) => {
 
 
 
-module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage }
+const uploadExcelFileData = (req, res, next) => {
+    if (!req.file) {
+        return res.status(400).send('No file was uploaded.');
+    }
+
+    try {
+        const filePath = req.file.path;
+        fs.createReadStream(filePath)
+            .pipe(csv())
+            .on('data', (row) => {
+                db.query('INSERT INTO vehicle SET ?', row, (error, results, fields) => {
+                    if (error) {
+                        fs.unlink(filePath, (err) => {
+                            if (err) {
+                                return
+                            }
+                        })
+                    }
+                });
+            })
+            .on('end', () => {
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        return;
+                    }
+                })
+                res.status(200).send('File uploaded successfully.');
+            });
+
+    } catch (error) {
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                return;
+            }
+        })
+        res.status(500).send('Error uploading file.');
+    }
+}
+
+
+module.exports = { adminConfirmVehicle, deleteBranchVehicle, userConfirmVehicle, deleteVehicleById, deleteVehicleByRcNumber, vehicleWithLimit, vehicleSearchByRcNumber, vehicleSearchByChassisNumber, vehicleDetails, confirmVehicleWithLimit, confirmVehicleSearchWithChassisNumber, confirmVehicleSearchWithRcNumber, confirmVehicleDetailsWithImage, uploadExcelFileData }
